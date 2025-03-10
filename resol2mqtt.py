@@ -44,9 +44,17 @@ def main():
     #publish the values:
     for i in range(len(l_values)):
             #publish the config first:
-        publish(mqttclient, "homeassistant/sensor/" + args.dvc_name + "/" + l_headers[i].replace(" ","_") + "/config", '{"unit_of_measurement":"'+l_units[i].replace(" ","")+'", "name": "'+args.dvc_name+'_'+l_headers[i].replace(" ","_")+'", "device_class": "temperature", "state_topic": "'+args.topic + l_headers[i].replace(" ","_") + '/state"}')
+        match l_units[i]:
+            case " s":
+                device_class="DURATION"
+            case "%":
+                device_class="POWER_FACTOR"
+            case _:
+                device_class="temperature"
+        publish(mqttclient, "homeassistant/sensor/" + args.dvc_name + "/" + l_headers[i].replace(" ","_") + "/config", '{"unit_of_measurement":"'+l_units[i].replace(" ","")+'", "name": "'+args.dvc_name+'_'+l_headers[i].replace(" ","_")+'", "device_class": "'+device_class+'", "state_topic": "'+args.topic + l_headers[i].replace(" ","_") + '/state"}')
         value=str(l_values[i]) + l_units[i]
         value=str(l_values[i])
+#        print("publishing:" + args.topic + l_headers[i].replace(" ","_") + "/state") 
         publish(mqttclient, args.topic + l_headers[i].replace(" ","_") + "/state" , value) 
 
     
